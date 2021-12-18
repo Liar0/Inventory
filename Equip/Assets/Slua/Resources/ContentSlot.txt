@@ -1,0 +1,157 @@
+import "UnityEngine"
+require "ContentSlotControl"
+
+
+content={}
+
+content.slot={}
+content.slotId={}
+content.slotNum={}
+
+function content:init()
+  go=GameObject.Find("Content")
+     for i=1,23 do
+       content.slot[i]=go.transform:GetChild(i-1)
+        content.slotId[i]=nil
+        content.slotNum[i]=nil
+       --print(content.slot[i])
+     end
+    
+    -- print(content.slotTable)
+end
+
+function content:GetId()
+  return content.slotId
+end
+
+function content:GetNum()
+  return content.slotNum
+end
+
+
+function content:FindSlot()
+  return function(str)
+     
+      if next(content.slotId) ==nil then
+      
+        content.slotId[1]=str
+        if content.slotNum[1] ==nil then
+         content.slotNum[1]=1
+         else
+         content.slotNum[1]=1+content.slotNum[1]
+         end
+
+         print(content.slot[1])
+         con:InstantiateGoods(content.slot[1],str,1)
+         --print(ContentSlotControl.GetTables())
+        
+     else
+     --找一个已经有了的物品
+
+      for i=1,23 do
+        if content.slotId[i]==str then
+           content.slotNum[i]=content.slotNum[i]+1         
+           con:addNumToSlot(content.slot[i],content.slotNum[i])   
+           break;
+         elseif content.slotId[i]==nil then
+
+           print(str)
+            content.slotId[i]=str
+           content.slotNum[i]=1
+         
+          con:InstantiateGoods(content.slot[i],str,1)
+           break
+
+           end
+        end
+      end 
+  end
+end
+
+
+function content:ReplaceSlot(origin,go)
+
+print("origin go :",origin,go)
+ local originName=content:FindGameGoName(origin)
+ --print("原来ImageName:",originName)
+ local originId=content:StringToNumber(origin.name)+1
+  print("原来Index:",originId)
+ local goName=content:FindGameGoName(go)
+  --print("去ImageName:",goName)
+ local goId=content:StringToNumber(go.name)+1
+  print("去Index:",goId)
+
+   if goId ~= originId then
+      if content.slotId[goId] == nil then
+         con:InstantiateGoods(go,originName,content.slotNum[originId])
+         content.slotNum[goId]=content.slotNum[originId]
+         content.slotNum[originId]=nil
+         content.slotId[goId]=originName
+         content.slotId[originId]=nil
+         con:Delete(origin)
+      elseif content.slotId[goId] ~= nil then
+         
+        if  content.slotId[goId] ~= content.slotId[originId] then
+          print("__________________")
+          content.slotId[goId]=originName
+          content.slotId[originId]=goName
+          content.slotNum[originId],content.slotNum[goId]=content.slotNum[goId],content.slotNum[originId]
+          con:Replace(origin,content.slotId[originId],content.slotNum[originId],go,content.slotId[goId],content.slotNum[goId])
+          
+          --con:InstantiateGoods(origin,content.slotId[originId],content.slotNum[originId])
+          --con:InstantiateGoods(go,content.slotId[goId],content.slotId[goId].slotNum[goId])
+          else
+            content.slotId[originId]=nil
+           
+            con:Delete(origin)
+            go.transform:GetChild(2):GetChild(0):GetComponent(UI.Text).text=tostring(content.slotNum[originId]+content.slotNum[goId])
+              content.slotNum[goId]= content.slotNum[goId]+ content.slotNum[originId]
+             content.slotNum[originId]=nil
+
+          end
+      end
+   end
+
+
+  --[[for i=1,23 do
+    if content.slotId[i] ==nil then
+       
+
+    elseif content:FindGameGoId(content.slot[i]) != name then
+      
+      end
+    end]]--
+end
+
+
+function content:StringToNumber(str)
+  if string.sub(str,8,8)>='0' and string.sub(str,8,8)<='9' then
+   return tonumber(string.sub(str,7,8))
+  else
+   return tonumber(string.sub(str,7,7))
+  end
+end
+
+
+function content:FindGameGoName(go)
+  return go.transform:GetChild(0):GetComponent(UI.Image).sprite.name
+end
+
+
+
+--主函数
+function main()
+
+  ContentSlot._inputClickKeyCode ={"+=",content:FindSlot()}
+  content:init()
+  
+  
+
+  --print(ContentSlot._inputClickKeyCode)
+
+  
+
+
+
+  return content
+end

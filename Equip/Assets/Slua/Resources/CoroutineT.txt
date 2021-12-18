@@ -1,0 +1,36 @@
+
+import"UnityEngine"
+
+if not UnityEngine.UI or not UnityEngine.GameObject then
+  print("Click Make/All to generate lua wrap file")
+
+end 
+
+class={}
+
+function main()
+   Bnt=GameObject.Find("resource"):GetComponent(UnityEngine.UI.Button)
+
+print(Bnt)
+
+   Bnt.onClick:AddListener(function()
+     print("Click resource Button")
+     c=CoroutineTest.staticCoroutineTest()
+     print(c)
+   end
+   )
+   return class
+end
+
+function class:init(c)
+   print("class:init",c)
+   c:StartCoroutine(function()
+       url = "D:/luaProject/AssetBundle/AssetBundle"
+       ab=AssetBundle.LoadFromFile£¨url)
+       ab.
+
+   end
+   )
+end
+
+

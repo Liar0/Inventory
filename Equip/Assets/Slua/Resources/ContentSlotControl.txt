@@ -1,0 +1,56 @@
+
+
+con={}
+
+con.image=nil
+con.numberText=nil
+
+function con:InstantiateGoods(go,str,num)
+
+   go.transform:GetChild(0).gameObject:SetActive(true)
+   --go.transform:GetChild(1).gameObject:SetActive(true)
+   go.transform:GetChild(2).gameObject:SetActive(true)
+
+   con.image=go.transform:GetChild(0):GetComponent(UI.Image)
+   --class.bnt=go.transform:GetChild(1):GetComponent(UI.Button)
+   con.numberText=go.transform:GetChild(2):GetChild(0):GetComponent(UI.Text)
+   --print(go)
+   --print(con.numberText)
+
+   --go.transform:GetChild(0).gameObject:SetActive(false)
+   --go.transform:GetChild(1).gameObject:SetActive(false)
+   --go.transform:GetChild(2).gameObject:SetActive(false)
+
+    con.image.sprite=ContentSlotControl.ResourcesLoad(str)
+    con.numberText.text=tostring(num)
+end
+
+function con:Replace(origin,originPath,originNum,go,goPath,goNum)
+  origin.transform:GetChild(0):GetComponent(UI.Image).sprite=ContentSlotControl.ResourcesLoad(originPath)
+  origin.transform:GetChild(2):GetChild(0):GetComponent(UI.Text).text=tostring(originNum)
+  go.transform:GetChild(0):GetComponent(UI.Image).sprite=ContentSlotControl.ResourcesLoad(goPath)
+  go.transform:GetChild(2):GetChild(0):GetComponent(UI.Text).text=tostring(goNum)
+end
+
+
+
+
+
+function con:addNumToSlot(go,num)
+  con.numberText=go.transform:GetChild(2):GetChild(0):GetComponent(UI.Text)
+  con.numberText.text=tostring(num)
+end
+
+function con:Delete(go)
+  con.numberText=go.transform:GetChild(2):GetChild(0):GetComponent(UI.Text)
+  con.numberText.text=tostring(0)
+  --GameObject.Destroy(go.transform:GetChild(0):GetComponent(UI.Image).sprite)
+  go.transform:GetChild(0).gameObject:SetActive(false)
+  go.transform:GetChild(2).gameObject:SetActive(false)
+end
+
+
+function main()
+
+return con
+end

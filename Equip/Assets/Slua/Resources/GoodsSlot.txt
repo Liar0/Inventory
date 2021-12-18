@@ -1,0 +1,154 @@
+import "UnityEngine"
+import "UnityEngine.EventSystems"
+--import "UnityEngine.Camera"
+import "UnityEngine.Input"
+
+
+local Vector3=UnityEngine.Vector3
+class={}
+
+
+class.isDrag=false
+class.go=nil
+class.isRay=true
+class.offVec=Vector3(0,0,0)
+class.goods={}
+--class.image=nil
+--class.bnt=nil
+--class.numberText=nil
+
+
+--拖拽开始
+function class:onMouseDragStart()
+
+return function(eventData)
+
+      if class.isDrag ~= true then
+        -- print("lua is onMouseDragStart")
+
+         
+         class.go=eventData.pointerDrag
+         class.transform=class.go:GetComponent("Transform")
+         class.offVec=class.transform.position-Vector3(eventData.position.x,eventData.position.y,0)
+        -- print(class.offVec)
+
+         class.isRay=false
+         class.isDrag=true
+
+      end
+   end
+end
+
+--拖拽结束
+function class:onMouseDragEnd()
+    
+return function(eventData)
+       
+      if class.isDrag == true then 
+        -- print("lua is PointerDragEnd")
+         
+         
+         local ray=Camera.main:ScreenPointToRay(Input.mousePosition)
+         local ok,hit=Physics.Raycast(ray,Slua.out)
+            if ok ~= false then
+            print(hit.collider.name)
+
+            end
+         
+         class.isRay=true
+         class.isDrag=false
+      end
+   end
+end
+
+
+--拖拽中
+function class:onMouseDrag()
+
+return function(eventData)
+     if class.isDrag ~= fasle then
+        --print("lua is onPointerDrag")
+        
+
+        --拖拽移动的时候
+        local vec=Vector3(Input.mousePosition.x,Input.mousePosition.y,0)+class.offVec
+        --print(vec)
+        class.transform.position=vec
+     end
+
+   end
+end
+
+--射线检测的时候
+function class:isRaycast()
+
+return function()
+    --[[if class.isRay == false then
+         class.isRay = not class.isRay
+    else 
+         class.isRay = not class.isRay
+    end]]--
+
+     return class.isRay
+  end
+end
+
+function class:MouseClickFunc()
+return function(str)
+    if str=='q' then
+         if class.goods["id"] ==nil then
+            class.goods["id"]="potion_7"
+
+            class.image.gameObject:SetActive(true)
+            class.numberText.transform.parent.gameObject:SetActive(true)
+
+            
+            class.image.sprite=GoodsSlot.ResourcesLoad(class.goods["id"])
+            class.numberText.text="1"
+            print(class.numberText.text)
+         end
+       end
+    end
+end
+
+function Init(transform)
+   transform:GetChild(0).gameObject:SetActive(true)
+   transform:GetChild(1).gameObject:SetActive(true)
+   transform:GetChild(2).gameObject:SetActive(true)
+
+   class.image=transform:GetChild(0):GetComponent(UI.Image)
+   class.bnt=transform:GetChild(1):GetComponent(UI.Button)
+   class.numberText=transform:GetChild(2):GetChild(0):GetComponent(UI.Text)
+   transform:GetChild(0).gameObject:SetActive(false)
+   transform:GetChild(1).gameObject:SetActive(false)
+   transform:GetChild(2).gameObject:SetActive(false)
+end
+
+
+
+function main()
+  transform=GoodsSlot.GetLocalTrans()
+  
+  Init(transform)
+
+  GoodsSlot._onPointerDragStart={"+=",class:onMouseDragStart()}
+  GoodsSlot._onPointerDragEnd={"+=",class:onMouseDragEnd()}
+  GoodsSlot._onPointerDrag={"+=",class:onMouseDrag()}
+  GoodsSlot._onIsRaycast={"+=",class:isRaycast()}
+  GoodsSlot._inputClickKeyCode={"+=",class:MouseClickFunc()}
+
+
+
+  for i=1,23 do
+  item=i-1
+  class[i]=GameObject.Find("Item ("..tostring(item)..")"):GetComponent(UI.Button)
+  end
+
+
+  return class
+
+end
+
+
+
+

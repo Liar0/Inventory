@@ -1,0 +1,132 @@
+--import "UnityEngine"
+--import "UnityEngine.EventSystems"
+
+
+local Vector3=UnityEngine.Vector3
+class={}
+
+
+class.isDrag=false
+class.go=nil
+class.isRay=true
+class.offVec=Vector3(0,0,0)
+class.goods={}
+class.Image=nil
+
+
+function class:FindSprite(go)
+   return go.transform:GetChild(0):GetComponent(UI.Image).sprite.name
+end
+
+
+--开始拖拽
+function class:onMouseDragStart()
+
+return function(eventData)
+
+      if class.isDrag ~= true  then
+        -- print("lua is onMouseDragStart")
+
+         
+         class.go=eventData.pointerDrag
+         class.Image=ContentSlotControl.ResourcesAssetPrefab("Image")
+         class.Image:GetComponent(UI.Image).sprite=ContentSlotControl.ResourcesLoad(class:FindSprite(class.go))
+         class.transform=class.Image:GetComponent("Transform")
+         --class.offVec=class.transform.position-Vector3(eventData.position.x,eventData.position.y,0)
+         --print(class.offVec)
+        
+
+
+
+         class.transform.position=Vector3(eventData.position.x,eventData.position.y,0)
+         --class.isRay=true
+         class.isDrag=true
+
+      end
+   end
+end
+
+--拖拽结束
+function class:onMouseDragEnd()
+    
+return function(eventData)
+       
+      if class.isDrag == true then 
+        -- print("lua is PointerDragEnd")
+         GameObject.Destroy(class.Image)
+         
+         too=SlotDrag.GetFirstPickGameObject(Input.mousePosition)
+         --print(too)
+         --print(class:SetTo(too))
+         content:ReplaceSlot(class.go,class:SetTo(too))
+         --class.isRay=true
+         class.isDrag=false
+      end
+   end
+end
+
+--local ray=Camera.main:ScreenPointToRay(Input.mousePosition)
+         --local ok,hit=Physics.Raycast(ray,Slua.out)
+           -- if ok ~= false then
+            --print(hit.collider.name)
+            --end
+--拖拽中
+function class:onMouseDrag()
+
+return function(eventData)
+     if class.isDrag ~= fasle then
+        --print("lua is onPointerDrag")
+        
+        
+
+        --拖拽移动的时候
+        --local vec=Vector3(Input.mousePosition.x,Input.mousePosition.y,0)+class.offVec
+        --print(vec)
+        class.transform.position=Vector3(Input.mousePosition.x,Input.mousePosition.y,0)
+     end
+
+   end
+end
+
+--射线检测的时候
+function class:isRaycast()
+
+return function()
+    --if class.isRay == false then
+    --     class.isRay = not class.isRay
+   -- else 
+    --     class.isRay = not class.isRay
+   -- end
+
+     return class.isRay
+  end
+end
+
+function class:SetTo(go)
+
+    if go.name == "Text" then 
+     return go.transform.parent.parent.gameObject
+    elseif go.name =="Image" then
+     return go.transform.parent.gameObject
+    elseif go.name=="badge" then
+     return go.transform.parent.gameObject
+    else
+    return go
+    end
+end
+
+
+function main()
+
+  SlotDrag._onPointerDragStart={"+=",class:onMouseDragStart()}
+  SlotDrag._onPointerDragEnd={"+=",class:onMouseDragEnd()}
+  SlotDrag._onPointerDrag={"+=",class:onMouseDrag()}
+  --SlotDrag._onIsRaycast={"+=",class:isRaycast()}
+
+
+  --SlotDrag._inputClickKeyCode={"+=",class:MouseClickFunc()}
+
+
+  return class
+
+end
